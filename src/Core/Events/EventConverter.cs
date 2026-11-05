@@ -49,9 +49,11 @@ public class EventConverter : JsonConverter<Event>
         }
         else if (eventBase.Type == EventType.SubflowSwitch) {
             JsonSerializer.Serialize(writer, (SubflowSwitchEvent)eventBase, options);
-        } else if (eventBase.Type == EventType.Return) {
+        }
+        else if (eventBase.Type == EventType.Return) {
             JsonSerializer.Serialize(writer, (ReturnEvent)eventBase, options);
-        } else {
+        }
+        else {
             throw new JsonException("Invalid event type");
         }
     }
