@@ -28,6 +28,9 @@ public class SubflowEvent : Event, IBfevDataBlock
         Parameters = reader.ReadObjectPtr<Container>(() => new(reader));
         FlowchartName = reader.ReadStringPtr();
         EntryPointName = reader.ReadStringPtr();
+        if (reader.Version[1] >= 4) {
+            reader.BaseStream.Position += 8;
+        }
     }
 
     public new void Write(BfevWriter writer)
@@ -39,6 +42,9 @@ public class SubflowEvent : Event, IBfevDataBlock
         Action insertParamsPtr = writer.ReservePtrIf(Parameters?.CanWrite() ?? false);
         writer.WriteStringPtr(FlowchartName);
         writer.WriteStringPtr(EntryPointName);
+        if (writer.Version[1] >= 4) {
+            writer.Write(0L);
+        }
         writer.ReserveBlockWriter("EventArrayDataBlock", () => {
             if (Parameters?.CanWrite() ?? false) {
                 insertParamsPtr();

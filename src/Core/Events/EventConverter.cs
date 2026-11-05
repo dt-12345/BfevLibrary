@@ -20,6 +20,8 @@ public class EventConverter : JsonConverter<Event>
                 EventType.Join => jsonDoc.RootElement.Deserialize<JoinEvent>(options),
                 EventType.Subflow => jsonDoc.RootElement.Deserialize<SubflowEvent>(options),
                 EventType.Switch => jsonDoc.RootElement.Deserialize<SwitchEvent>(options),
+                EventType.SubflowSwitch => jsonDoc.RootElement.Deserialize<SubflowSwitchEvent>(options),
+                EventType.Return => jsonDoc.RootElement.Deserialize<ReturnEvent>(options),
                 _ => throw new JsonException($"Type '{type}' does not match a known event type"),
             };
         }
@@ -45,7 +47,11 @@ public class EventConverter : JsonConverter<Event>
         else if (eventBase.Type == EventType.Switch) {
             JsonSerializer.Serialize(writer, (SwitchEvent)eventBase, options);
         }
-        else {
+        else if (eventBase.Type == EventType.SubflowSwitch) {
+            JsonSerializer.Serialize(writer, (SubflowSwitchEvent)eventBase, options);
+        } else if (eventBase.Type == EventType.Return) {
+            JsonSerializer.Serialize(writer, (ReturnEvent)eventBase, options);
+        } else {
             throw new JsonException("Invalid event type");
         }
     }

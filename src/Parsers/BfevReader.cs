@@ -4,7 +4,12 @@ namespace BfevLibrary.Parsers;
 
 public class BfevReader : BinaryReader
 {
-    public BfevReader(Stream stream) : base(stream) { }
+    public byte[] Version { get; set; }
+
+    public BfevReader(Stream stream) : base(stream)
+    {
+        Version = [0x00, 0x03, 0x00, 0x00];
+    }
 
     /// <summary>
     /// Aligns the stream to <paramref name="align"/> bytes
@@ -12,6 +17,12 @@ public class BfevReader : BinaryReader
     public void Align(int align)
     {
         BaseStream.Position = (BaseStream.Position + align - 1) & -align;
+    }
+
+    public string ReadVersion()
+    {
+        Version = ReadBytes(4);
+        return string.Join('.', Version);
     }
 
     public T? ReadObjectPtr<T>(Func<T> read, long? offset = null)

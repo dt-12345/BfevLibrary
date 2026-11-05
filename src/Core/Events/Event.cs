@@ -6,7 +6,7 @@ namespace BfevLibrary.Core;
 
 public enum EventType
 {
-    Action, Switch, Fork, Join, Subflow
+    Action, Switch, Fork, Join, Subflow, SubflowSwitch, Return
 }
 
 [JsonConverter(typeof(EventConverter))]
@@ -36,7 +36,9 @@ public abstract class Event : IBfevDataBlock
             EventType.Fork => new ForkEvent(reader),
             EventType.Join => new JoinEvent(reader),
             EventType.Subflow => new SubflowEvent(reader),
-            _ => throw new NotImplementedException()
+            EventType.SubflowSwitch => new SubflowSwitchEvent(reader),
+            EventType.Return => new ReturnEvent(reader),
+            _ => throw new NotImplementedException($"{type} @ {reader.BaseStream.Position:x}"),
         };
 
         result.Flowchart = parent;

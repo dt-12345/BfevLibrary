@@ -40,7 +40,7 @@ public class BfevBase : IBfevDataBlock
         reader.BaseStream.Position += 2;
 
         // Version (byte[4])
-        Version = string.Join('.', reader.ReadBytes(4));
+        Version = reader.ReadVersion();
 
         // Byte order (2), alignment (1), padding (1)
         reader.BaseStream.Position += 4;
@@ -82,7 +82,7 @@ public class BfevBase : IBfevDataBlock
         writer.Write((ushort)0);
 
         // Version (byte[4])
-        writer.Write(Version.Split('.').Select(x => (byte)int.Parse(x)).ToArray());
+        writer.WriteVersion(Version);
 
         // Byte order (2), alignment (1), padding (1)
         writer.Write((ushort)0xFEFF);

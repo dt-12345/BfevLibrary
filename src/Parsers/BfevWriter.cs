@@ -9,11 +9,13 @@ public class BfevWriter : BinaryWriter
     public Dictionary<string, List<Action>> Strings { get; set; } = new();
     public Dictionary<string, List<Action>> ReservedBlocks { get; set; } = new();
     public long RelocationTableOffset { get; set; } = 0L;
+    public byte[] Version { get; set; }
 
     public BfevWriter(Stream stream) : base(stream)
     {
         // Add the empty string
         Strings.Add("", new());
+        Version = [0x00, 0x03, 0x00, 0x00];
     }
 
     /// <summary>
@@ -22,6 +24,12 @@ public class BfevWriter : BinaryWriter
     public void Align(int align)
     {
         BaseStream.Position = (BaseStream.Position + align - 1) & -align;
+    }
+
+    public void WriteVersion(string version)
+    {
+        Version = version.Split('.').Select(x => (byte)int.Parse(x)).ToArray();
+        Write(Version);
     }
 
     /// <summary>

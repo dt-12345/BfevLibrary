@@ -48,6 +48,9 @@ public class SwitchEvent : Event, IBfevDataBlock
             return switchCase;
         }).ToList();
         reader.BaseStream.Position += 8; // Unused pointer
+        if (reader.Version[1] >= 4) {
+            reader.BaseStream.Position += 8;
+        }
     }
 
     public new void Write(BfevWriter writer)
@@ -59,6 +62,9 @@ public class SwitchEvent : Event, IBfevDataBlock
         Action insertParamsPtr = writer.ReservePtrIf(Parameters?.CanWrite() ?? false);
         Action insertSwitchCasesPtr = writer.ReservePtrIf(SwitchCases.Count > 0, register: true);
         writer.Write(0L);
+        if (writer.Version[1] >= 4) {
+            writer.Write(0L);
+        }
         writer.ReserveBlockWriter("EventArrayDataBlock", () => {
             if (SwitchCases.Count > 0) {
                 writer.Align(8);

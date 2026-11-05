@@ -23,6 +23,9 @@ public class ForkEvent : Event, IBfevDataBlock
         reader.BaseStream.Position += 2; // unused ushort
         ForkEventIndicies = reader.ReadObjectsPtr(new short[forkCount], reader.ReadInt16).ToList();
         reader.BaseStream.Position += 8 + 8; // unused pointers
+        if (reader.Version[1] >= 4) {
+            reader.BaseStream.Position += 8;
+        }
     }
 
     public new void Write(BfevWriter writer)
@@ -34,6 +37,9 @@ public class ForkEvent : Event, IBfevDataBlock
         Action insertForkEventIndiciesPtr = writer.ReservePtr();
         writer.Write(0L);
         writer.Write(0L);
+        if (writer.Version[1] >= 4) {
+            writer.Write(0L);
+        }
         writer.ReserveBlockWriter("EventArrayDataBlock", () => {
             if (ForkEventIndicies.Count > 0) {
                 insertForkEventIndiciesPtr();

@@ -19,6 +19,9 @@ public class JoinEvent : Event, IBfevDataBlock
         NextEventIndex = reader.ReadInt16();
         reader.BaseStream.Position += 2 + 2; // unused ushorts
         reader.BaseStream.Position += 8 + 8 + 8; // unused pointers
+        if (reader.Version[1] >= 4) {
+            reader.BaseStream.Position += 8;
+        }
     }
 
     public new void Write(BfevWriter writer)
@@ -30,6 +33,9 @@ public class JoinEvent : Event, IBfevDataBlock
         writer.Write(0L);
         writer.Write(0L);
         writer.Write(0L);
+        if (writer.Version[1] >= 4) {
+            writer.Write(0L);
+        }
     }
 
     public override void AlterEventIndex(int index)

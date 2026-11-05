@@ -32,6 +32,9 @@ public class ActionEvent : Event, IBfevDataBlock
         ActorActionIndex = reader.ReadInt16();
         Parameters = reader.ReadObjectPtr<Container>(() => new(reader));
         reader.BaseStream.Position += 8 + 8; // unused pointers
+        if (reader.Version[1] >= 4) {
+            reader.BaseStream.Position += 8;
+        }
     }
 
     public new void Write(BfevWriter writer)
@@ -43,6 +46,9 @@ public class ActionEvent : Event, IBfevDataBlock
         Action insertParamsPtr = writer.ReservePtrIf(Parameters?.CanWrite() ?? false);
         writer.Write(0L);
         writer.Write(0L);
+        if (writer.Version[1] >= 4) {
+            writer.Write(0L);
+        }
 
         writer.ReserveBlockWriter("EventArrayDataBlock", () => {
             if (Parameters?.CanWrite() ?? false) {
