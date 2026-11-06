@@ -20,7 +20,9 @@ public class SubflowSwitchEvent : Event, IBfevDataBlock
         }
     }
 
+    public Container? Parameters { get; set; }
     public List<SwitchCase> SwitchCases { get; set; }
+    public string FlowchartName { get; set; }
     public string EntryPointName { get; set; }
 
     [JsonConstructor]
@@ -36,14 +38,14 @@ public class SubflowSwitchEvent : Event, IBfevDataBlock
         }
         ushort switchCaseCount = reader.ReadUInt16();
         reader.BaseStream.Position += 2 + 2;
-        reader.BaseStream.Position += 8;
+        Parameters = reader.ReadObjectPtr<Container>(() => new(reader));
         SwitchCases = reader.ReadObjectsPtr(new SwitchCase[switchCaseCount], () => {
             SwitchCase switchCase = new(reader.ReadUInt32(), reader.ReadUInt16());
             reader.ReadInt16();
             reader.Align(8);
             return switchCase;
         }).ToList();
-        reader.BaseStream.Position += 8;
+        FlowchartName = reader.ReadStringPtr();
         EntryPointName = reader.ReadStringPtr();
     }
 
@@ -56,9 +58,9 @@ public class SubflowSwitchEvent : Event, IBfevDataBlock
         writer.Write((ushort)SwitchCases.Count);
         writer.Write((ushort)0);
         writer.Write((ushort)0);
-        writer.Write(0L);
+        Action insertParamsPtr = writer.ReservePtrIf(Parameters?.CanWrite() ?? false);
         Action insertSwitchCasesPtr = writer.ReservePtrIf(SwitchCases.Count > 0, register: true);
-        writer.Write(0L);
+        writer.WriteStringPtr(FlowchartName);
         writer.WriteStringPtr(EntryPointName);
         writer.ReserveBlockWriter("EventArrayDataBlock", () => {
             if (SwitchCases.Count > 0) {
@@ -71,6 +73,11 @@ public class SubflowSwitchEvent : Event, IBfevDataBlock
                     writer.Write((ushort)0); // Padding
                     writer.Align(8);
                 }
+            }
+
+            if (Parameters?.CanWrite() ?? false) {
+                insertParamsPtr();
+                Parameters?.Write(writer);
             }
         });
     }

@@ -18,6 +18,7 @@ public enum ContainerDataType : byte
     StringArray,
     WStringArray,
     ActorIdentifier,
+    CustomKey, // TODO
 }
 
 public class Container : RadixTree<ContainerItem>, IBfevDataBlock

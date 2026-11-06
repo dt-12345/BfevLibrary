@@ -75,6 +75,9 @@ public class ContainerData
         else if (type == ContainerDataType.ActorIdentifier) {
             ActorIdentifier = new(reader.ReadStringPtr(), reader.ReadStringPtr());
         }
+        else {
+            throw new NotImplementedException($"{reader.BaseStream.Position:x}");
+        }
     }
 
     public void WriteData(BfevWriter writer)
